@@ -35,8 +35,8 @@ export default function App() {
       const resp = await axios.post("https://docchat-production-67c0.up.railway.app/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          withCredentials: true,
         },
+        withCredentials: true,
       });
 
       console.log("Response from server:", resp.data);
@@ -72,9 +72,9 @@ export default function App() {
      const data = await axios.post("https://docchat-production-67c0.up.railway.app/chat", {query:inputMessage}, 
         {headers:{
           "Content-Type": "application/json",
-          withCredentials: true,
-        }}
-
+        },
+        withCredentials: true,
+      }
       )
       console.log(data)
       const msg= {
