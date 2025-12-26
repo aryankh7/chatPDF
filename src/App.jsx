@@ -32,7 +32,7 @@ export default function App() {
     formData.append("file", file);
     console.log(file)
     try {
-      const resp = await axios.post("http://localhost:3000/upload", formData, {
+      const resp = await axios.post("https://docchat-production-67c0.up.railway.app/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -68,7 +68,7 @@ export default function App() {
       setMessages((prev) => [...prev, newMessage])
       setInputMessage("")
 
-     const data = await axios.post("http://localhost:3000/chat", {query:inputMessage}, 
+     const data = await axios.post("https://docchat-production-67c0.up.railway.app/chat", {query:inputMessage}, 
         {headers:{
           "Content-Type": "application/json",
         }}
