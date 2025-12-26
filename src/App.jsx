@@ -1,22 +1,23 @@
-"use client"
+"use client";
 
-import axios from "axios"
-import { useState } from "react"
+import axios from "axios";
+import { useState } from "react";
 
 export default function App() {
-  const [uploadedFiles, setUploadedFiles] = useState([])
-  const [messages, setMessages] = useState([])
-  const [inputMessage, setInputMessage] = useState("")
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState("");
 
   // Handle file upload
   const handleFileUpload = async (event) => {
-    const files = Array.from(event.target.files)
+    const files = Array.from(event.target.files);
     const validFiles = files.filter(
       (file) =>
         file.type === "application/pdf" ||
         file.type === "application/msword" ||
-        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    )
+        file.type ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
 
     const newFiles = validFiles.map((file) => ({
       id: Date.now() + Math.random(),
@@ -24,66 +25,72 @@ export default function App() {
       size: file.size,
       type: file.type,
       uploadedAt: new Date().toLocaleString(),
-    }))
+    }));
 
     // Upload each valid file one by one
-  for (const file of validFiles) {
-    const formData = new FormData();
-    formData.append("file", file);
-    console.log(file)
-    try {
-      const resp = await axios.post("https://docchat-production-67c0.up.railway.app/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      });
+    for (const file of validFiles) {
+      const formData = new FormData();
+      formData.append("file", file);
+      console.log(file);
+      try {
+        const resp = await axios.post(
+          "https://docchat-production-67c0.up.railway.app/upload",
+          formData,
+          {
+            withCredentials: true, // ✅ top-level
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
-      console.log("Response from server:", resp.data);
-      if (resp.data.success) {
-        setUploadedFiles((prev) => [...prev, ...newFiles]);
-        event.target.value = ""; // Reset input
+        console.log("Response from server:", resp.data);
+        if (resp.data.success) {
+          setUploadedFiles((prev) => [...prev, ...newFiles]);
+          event.target.value = ""; // Reset input
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
       }
-    } catch (error) {
-      console.error("Upload error:", error);
     }
-  }
-    
-  }
+  };
 
   // Remove uploaded file
   const removeFile = (fileId) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId))
-  }
+    setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
+  };
 
   // Handle chat message send
   const handleSendMessage = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (inputMessage.trim()) {
       const newMessage = {
         id: Date.now(),
         text: inputMessage,
         sender: "user",
         timestamp: new Date().toLocaleString(),
-      }
-      setMessages((prev) => [...prev, newMessage])
-      setInputMessage("")
+      };
+      setMessages((prev) => [...prev, newMessage]);
+      setInputMessage("");
 
-     const data = await axios.post("https://docchat-production-67c0.up.railway.app/chat", {query:inputMessage}, 
-        {headers:{
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-      )
-      console.log(data)
-      const msg= {
+      const data = await axios.post(
+        "https://docchat-production-67c0.up.railway.app/chat",
+        { query: inputMessage },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(data);
+      const msg = {
         id: Date.now() + 1,
         text: data.data.message,
         sender: "Rag",
         timestamp: new Date().toLocaleString(),
-      }
-      setMessages((prev)=>[ ...prev, msg ])
+      };
+      setMessages((prev) => [...prev, msg]);
       // Simulate bot response
       // setTimeout(() => {
       //   const botMessage = {
@@ -95,16 +102,18 @@ export default function App() {
       //   setMessages((prev) => [...prev, botMessage])
       // }, 1000)
     }
-  }
+  };
 
   // Format file size
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -116,13 +125,25 @@ export default function App() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-10 h-10 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">DocuChat Pro</h1>
-                <p className="text-sm text-slate-400">Professional Document Analysis Platform</p>
+                <p className="text-sm text-slate-400">
+                  Professional Document Analysis Platform
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -144,7 +165,12 @@ export default function App() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -154,13 +180,17 @@ export default function App() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Document Library</h2>
+                  <h2 className="text-lg font-bold text-white">
+                    Document Library
+                  </h2>
                   <p className="text-sm text-slate-400">Manage your files</p>
                 </div>
               </div>
               {/* Moved FILES text to match screenshot */}
               <div className="text-right">
-                <div className="text-xs text-slate-400 uppercase tracking-wide">FILES</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">
+                  FILES
+                </div>
               </div>
             </div>
           </div>
@@ -173,7 +203,12 @@ export default function App() {
                 {/* Adjusted border and background */}
                 <div className="mb-3">
                   <div className="w-20 h-20 mx-auto bg-gradient-to-r from-violet-500 to-purple-600 rounded-3xl flex items-center justify-center mb-4 shadow-2xl">
-                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-10 h-10 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -184,10 +219,19 @@ export default function App() {
                   </div>
                 </div>
                 <label htmlFor="file-upload" className="cursor-pointer block">
-                  <span className="text-md font-semibold text-white mb-2 block">Drop files here</span>
-                  <span className="text-sm text-slate-400 block mb-4">or click to browse</span>
+                  <span className="text-md font-semibold text-white mb-2 block">
+                    Drop files here
+                  </span>
+                  <span className="text-sm text-slate-400 block mb-4">
+                    or click to browse
+                  </span>
                   <div className="inline-flex items-center px-4 py-2 bg-white/10 rounded-xl text-sm text-slate-300 border border-white/20">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -197,7 +241,9 @@ export default function App() {
                     </svg>
                     Choose Files
                   </div>
-                  <p className="text-xs text-slate-500 mt-3">PDF, DOC, DOCX • Max 25MB</p>
+                  <p className="text-xs text-slate-500 mt-3">
+                    PDF, DOC, DOCX • Max 25MB
+                  </p>
                 </label>
                 <input
                   id="file-upload"
@@ -218,7 +264,12 @@ export default function App() {
             {uploadedFiles.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-24 h-24 mx-auto bg-gray-900/20 rounded-3xl flex items-center justify-center mb-6 border border-gray-800/50">
-                  <svg className="w-12 h-12 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-12 h-12 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -227,8 +278,12 @@ export default function App() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">No documents yet</h3>
-                <p className="text-sm text-slate-400">Upload your first document to get started with AI analysis</p>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  No documents yet
+                </h3>
+                <p className="text-sm text-slate-400">
+                  Upload your first document to get started with AI analysis
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -242,7 +297,12 @@ export default function App() {
                       <div className="relative">
                         {file.type === "application/pdf" ? (
                           <div className="w-14 h-14 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                              className="w-7 h-7 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -253,7 +313,12 @@ export default function App() {
                           </div>
                         ) : (
                           <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg
+                              className="w-7 h-7 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -264,19 +329,36 @@ export default function App() {
                           </div>
                         )}
                         <div className="absolute -top-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            />
                           </svg>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-gray-900 truncate text-sm">{file.name}</h4>{" "}
+                        <h4 className="font-semibold text-gray-900 truncate text-sm">
+                          {file.name}
+                        </h4>{" "}
                         {/* Changed text color */}
                         <div className="flex items-center space-x-3 mt-1">
-                          <span className="text-xs text-gray-600">{formatFileSize(file.size)}</span>{" "}
+                          <span className="text-xs text-gray-600">
+                            {formatFileSize(file.size)}
+                          </span>{" "}
                           {/* Changed text color */}
                           <span className="w-1 h-1 bg-gray-500 rounded-full"></span>
-                          <span className="text-xs text-gray-600">{file.uploadedAt}</span> {/* Changed text color */}
+                          <span className="text-xs text-gray-600">
+                            {file.uploadedAt}
+                          </span>{" "}
+                          {/* Changed text color */}
                         </div>
                         <div className="mt-2 flex items-center space-x-2">
                           <div className="flex-1 bg-gray-300 rounded-full h-1">
@@ -284,7 +366,9 @@ export default function App() {
                             {/* Changed progress bar background */}
                             <div className="bg-gradient-to-r from-emerald-500 to-cyan-500 h-1 rounded-full w-full"></div>
                           </div>
-                          <span className="text-xs text-emerald-600 font-medium">Processed</span>{" "}
+                          <span className="text-xs text-emerald-600 font-medium">
+                            Processed
+                          </span>{" "}
                           {/* Adjusted text color */}
                         </div>
                       </div>
@@ -292,7 +376,12 @@ export default function App() {
                         onClick={() => removeFile(file.id)}
                         className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-red-600 hover:bg-red-500/10 rounded-xl transition-all duration-200"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -319,7 +408,12 @@ export default function App() {
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -332,7 +426,9 @@ export default function App() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white">AI Assistant</h2>
-                  <p className="text-sm text-slate-400">Powered by advanced document analysis</p>
+                  <p className="text-sm text-slate-400">
+                    Powered by advanced document analysis
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -347,7 +443,12 @@ export default function App() {
             {messages.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-24 h-24 mx-auto bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl flex items-center justify-center mb-6 shadow-2xl">
-                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-12 h-12 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -356,35 +457,62 @@ export default function App() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Ready to analyze your documents</h3>
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Ready to analyze your documents
+                </h3>
                 <p className="text-slate-400 max-w-md mx-auto">
-                  Upload documents and start asking questions. I can help you extract insights, summarize content, and
-                  answer specific questions about your files.
+                  Upload documents and start asking questions. I can help you
+                  extract insights, summarize content, and answer specific
+                  questions about your files.
                 </p>
                 <div className="mt-8 grid grid-cols-2 gap-3 max-w-md mx-auto">
                   <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-left">
-                    <div className="text-sm font-medium text-white mb-1">Quick Analysis</div>
-                    <div className="text-xs text-slate-400">Get instant summaries</div>
+                    <div className="text-sm font-medium text-white mb-1">
+                      Quick Analysis
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      Get instant summaries
+                    </div>
                   </div>
                   <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-left">
-                    <div className="text-sm font-medium text-white mb-1">Smart Search</div>
-                    <div className="text-xs text-slate-400">Find specific information</div>
+                    <div className="text-sm font-medium text-white mb-1">
+                      Smart Search
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      Find specific information
+                    </div>
                   </div>
                 </div>
               </div>
             ) : (
               messages.map((message) => (
-                <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={message.id}
+                  className={`flex ${
+                    message.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
-                    className={`flex items-start space-x-3 max-w-md ${message.sender === "user" ? "flex-row-reverse space-x-reverse" : ""}`}
+                    className={`flex items-start space-x-3 max-w-md ${
+                      message.sender === "user"
+                        ? "flex-row-reverse space-x-reverse"
+                        : ""
+                    }`}
                   >
                     <div
                       className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${
-                        message.sender === "user" ? "bg-gradient-to-r from-blue-500 to-cyan-500" : "bg-gray-200" // Changed AI avatar background to light gray
+                        message.sender === "user"
+                          ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                          : "bg-gray-200" // Changed AI avatar background to light gray
                       }`}
                     >
                       {message.sender === "user" ? (
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-5 h-5 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -393,7 +521,12 @@ export default function App() {
                           />
                         </svg>
                       ) : (
-                        <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-5 h-5 text-gray-800"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           {" "}
                           {/* Changed AI avatar icon color */}
                           <path
@@ -413,7 +546,13 @@ export default function App() {
                       }`}
                     >
                       <p className="text-sm leading-relaxed">{message.text}</p>
-                      <p className={`text-xs mt-2 ${message.sender === "user" ? "text-blue-100" : "text-gray-600"}`}>
+                      <p
+                        className={`text-xs mt-2 ${
+                          message.sender === "user"
+                            ? "text-blue-100"
+                            : "text-gray-600"
+                        }`}
+                      >
                         {" "}
                         {/* Adjusted AI message timestamp color */}
                         {message.timestamp}
@@ -426,7 +565,10 @@ export default function App() {
           </div>
           {/* Message Input */}
           <div className="p-6 border-t border-gray-800/50">
-            <form onSubmit={handleSendMessage} className="flex items-end space-x-4">
+            <form
+              onSubmit={handleSendMessage}
+              className="flex items-end space-x-4"
+            >
               <div className="flex-1 relative">
                 <input
                   type="text"
@@ -436,7 +578,12 @@ export default function App() {
                   className="w-full bg-gray-900/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl px-4 py-3 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -458,5 +605,5 @@ export default function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
