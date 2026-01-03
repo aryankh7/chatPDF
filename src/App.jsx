@@ -140,7 +140,7 @@ export default function App() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">DocuChat Pro</h1>
+                <h1 className="text-xl font-bold text-white">DocChat Pro</h1>
                 <p className="text-sm text-slate-400">
                   Professional Document Analysis Platform
                 </p>
